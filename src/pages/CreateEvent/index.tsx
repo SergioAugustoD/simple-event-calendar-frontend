@@ -9,6 +9,10 @@ import {
   Textarea,
   useToast,
 } from "@chakra-ui/react";
+import { IEvent } from "interfaces/IEvent";
+import { EventService } from "services/EventService";
+import useLogin from "hooks/useLogin";
+import { useNavigate } from "react-router-dom";
 
 type Event = {
   id: number;
@@ -18,33 +22,37 @@ type Event = {
 };
 
 const CreateEventPage: React.FC = () => {
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
-  const [description, setDescription] = useState("");
+  const [dataEvent, setDataEvent] = useState<IEvent>({});
+  const { session } = useLogin();
+  const navigate = useNavigate();
 
   const toast = useToast();
 
-  const handleCreateEvent = () => {
-    // Aqui você pode adicionar a lógica para criar um novo evento
-    const newEvent: Event = {
-      id: Date.now(),
-      title,
-      date,
-      description,
-    };
-
-    // Exemplo de exibição de uma mensagem de sucesso usando o toast do Chakra UI
-    toast({
-      title: "Evento criado com sucesso!",
-      status: "success",
-      duration: 3000,
-      isClosable: true,
+  const handleCreateEvent = async () => {
+    // lógica para criar um novo evento
+    const response = await EventService.createEvent({
+      ...dataEvent,
+      id_user: parseInt(localStorage.getItem("dd")),
     });
 
-    // Limpar os campos após criar o evento
-    setTitle("");
-    setDate("");
-    setDescription("");
+    if (response.status === 200) {
+      toast({
+        title: response.msg,
+        status: "success",
+        duration: 3000,
+        isClosable: true,
+      });
+      // Limpar os campos após criar o evento
+      setDataEvent({ date: "", description: "", title: "", location: "" });
+    }
+    if (response.err) {
+      toast({
+        title: response.msg,
+        status: "error",
+        duration: 3000,
+        isClosable: true,
+      });
+    }
   };
 
   return (
@@ -56,8 +64,11 @@ const CreateEventPage: React.FC = () => {
       <FormControl mb={4}>
         <FormLabel>Título</FormLabel>
         <Input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          name="title"
+          value={dataEvent.title || ""}
+          onChange={(e) =>
+            setDataEvent({ ...dataEvent, title: e.target.value })
+          }
           placeholder="Digite o título do evento"
         />
       </FormControl>
@@ -65,8 +76,10 @@ const CreateEventPage: React.FC = () => {
       <FormControl mb={4}>
         <FormLabel>Data</FormLabel>
         <Input
-          value={date}
-          onChange={(e) => setDate(e.target.value)}
+          name="date"
+          value={dataEvent.date || ""}
+          type="date"
+          onChange={(e) => setDataEvent({ ...dataEvent, date: e.target.value })}
           placeholder="Digite a data do evento"
         />
       </FormControl>
@@ -74,15 +87,30 @@ const CreateEventPage: React.FC = () => {
       <FormControl mb={4}>
         <FormLabel>Descrição</FormLabel>
         <Textarea
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          name="description"
+          value={dataEvent.description || ""}
+          onChange={(e) =>
+            setDataEvent({ ...dataEvent, description: e.target.value })
+          }
           placeholder="Digite a descrição do evento"
+        />
+      </FormControl>
+      <FormControl mb={4}>
+        <FormLabel>Localização</FormLabel>
+        <Textarea
+          name="location"
+          value={dataEvent.location || ""}
+          onChange={(e) =>
+            setDataEvent({ ...dataEvent, location: e.target.value })
+          }
+          placeholder="Digite a localização do evento"
         />
       </FormControl>
 
       <Button colorScheme="blue" onClick={handleCreateEvent}>
         Criar Evento
       </Button>
+      <Button onClick={() => navigate("/events")}>Voltar</Button>
     </Box>
   );
 };

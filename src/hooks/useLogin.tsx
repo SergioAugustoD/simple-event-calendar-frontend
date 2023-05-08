@@ -8,8 +8,8 @@ export default () => {
 
   const handleSignIn = useCallback(
     (data: ILogin) => {
-      console.log(data);
       setSession(data);
+      localStorage.setItem("dd", data.id_user);
       localStorage.setItem("token", data.token);
     },
     [setSession]
