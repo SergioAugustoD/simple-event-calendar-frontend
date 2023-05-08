@@ -1,0 +1,43 @@
+{
+  /******************** Root Fields ********************/
+  "compileOnSave": true,
+  "include": ["src/**/*", "@types/**/*"],
+  "exclude": ["node_modules", "**/node_modules/*", "build"],
+  "references": [{ "path": "./tsconfig.node.json" }],
+
+  "compilerOptions": {
+    "target": "es2021",
+    // :::: module :::: //
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    // :::: React :::: //
+    "jsx": "react-jsx",
+    // :::: JS :::: //
+    "allowJs": true,
+    // :::: Lint :::: //
+    "strict": false,
+    "noImplicitAny": true,
+    // :::: More spec :::: //
+    "lib": ["es5", "es6", "ES2018", "dom"],
+    // :::: Sorcemap :::: //
+    "sourceMap": false,
+    // :::: Etc :::: //
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true,
+    "isolatedModules": true,
+    // :::: Detail :::: //
+    "disableSizeLimit": true,
+    "forceConsistentCasingInFileNames": false,
+    "incremental": true,
+    // :::: Outfile :::: //
+    "removeComments": true,
+    "noEmit": true,
+    // :::: path :::: //
+		"strictPropertyInitialization": false,
+    "baseUrl": "./src",
+    "paths": {},
+    "typeRoots": ["@types", "./node_modules/@types"]
+  }
+}
