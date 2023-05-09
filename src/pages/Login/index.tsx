@@ -1,129 +1,129 @@
-import { useCallback, useState } from "react";
-import styled from "styled-components";
-import axios from "axios";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useCallback, useState } from "react";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormErrorMessage,
+  FormLabel,
+  Heading,
+  Input,
+  Stack,
+  Text,
+  useToast,
+} from "@chakra-ui/react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import useLogin from "hooks/useLogin";
-import { ILogin } from "interfaces/ILogin";
 import { LoginService } from "services/LoginService";
-import { useToast } from "@chakra-ui/react";
 
-const LoginPage = () => {
-  const [dataLogin, setDataLogin] = useState<ILogin>(null);
+type FormData = {
+  email: string;
+  password: string;
+};
+
+const LoginPage: React.FC = () => {
+  const {
+    handleSubmit,
+    register,
+    formState: { errors, isSubmitting },
+  } = useForm<FormData>();
   const { handleSignIn } = useLogin();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const toast = useToast();
 
-  const handleLogin = useCallback(async () => {
-    window.event.preventDefault();
-    setIsLoading(true);
+  const handleFormSubmit = useCallback(
+    async (data: FormData) => {
+      window.event.preventDefault();
+      setIsLoading(true);
 
-    if (dataLogin === null) {
-      setIsLoading(false);
-      return;
-    }
-    const res = await LoginService.login(dataLogin);
-    if (!res.err) {
-      setTimeout(() => {
+      if (data === null) {
         setIsLoading(false);
-        handleSignIn(res);
+        return;
+      }
+      const res = await LoginService.login(data);
+      if (!res.err) {
+        setTimeout(() => {
+          setIsLoading(false);
+          handleSignIn(res);
+          toast({
+            title: res.msg,
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+          navigate("/events");
+        }, 2000);
+      }
+      if (res.err) {
+        setIsLoading(false);
         toast({
           title: res.msg,
-          status: "success",
+          status: "error",
           duration: 3000,
           isClosable: true,
         });
-        navigate("/events");
-      }, 2000);
-    }
-    if (res.err) {
-      setIsLoading(false);
-      toast({
-        title: res.msg,
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
-    }
-  }, [dataLogin, handleSignIn, navigate]);
+      }
+    },
+    [handleSignIn, navigate]
+  );
 
   return (
-    <Container>
-      <LoginForm>
-        <Title>Login</Title>
-        <Form onSubmit={handleLogin}>
-          <FormGroup>
-            <Label>Email:</Label>
-            <Input
-              type="email"
-              onChange={(e) =>
-                setDataLogin({ ...dataLogin, email: e.target.value })
-              }
-            />
-          </FormGroup>
-          <FormGroup>
-            <Label>Password:</Label>
-            <Input
-              type="password"
-              onChange={(e) =>
-                setDataLogin({ ...dataLogin, password: e.target.value })
-              }
-            />
-          </FormGroup>
-          <Button type="submit">Login</Button>
-          <Link to="/create-user">Criar</Link>
-        </Form>
-      </LoginForm>
-    </Container>
+    <Box maxWidth="400px" margin="0 auto" mt="8" p="4">
+      <Heading mb="4" size="lg" textAlign="center">
+        Login
+      </Heading>
+      <Box borderWidth="1px" borderRadius="lg" p="6">
+        <form onSubmit={handleSubmit(handleFormSubmit)}>
+          <Stack spacing="4">
+            <FormControl isInvalid={!!errors.email}>
+              <FormLabel htmlFor="email">Email address</FormLabel>
+              <Input
+                {...register("email", {
+                  required: "Email is required",
+                  pattern: {
+                    value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                    message: "Invalid email address",
+                  },
+                })}
+                type="email"
+                id="email"
+              />
+              <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl isInvalid={!!errors.password}>
+              <FormLabel htmlFor="password">Password</FormLabel>
+              <Input
+                {...register("password", {
+                  required: "Password is required",
+                  minLength: {
+                    value: 6,
+                    message: "Password must have at least 6 characters",
+                  },
+                })}
+                type="password"
+                id="password"
+              />
+              <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
+            </FormControl>
+            <Button type="submit" colorScheme="teal" isLoading={isSubmitting}>
+              Log In
+            </Button>
+            <Button
+              variant="outline"
+              colorScheme="teal"
+              onClick={() => navigate("/register", { replace: true })}
+            >
+              Create Account
+            </Button>
+            <Text textAlign="center">
+              <a href="/forgot-password">Forgot Password?</a>
+            </Text>
+          </Stack>
+        </form>
+      </Box>
+    </Box>
   );
 };
-
-const Container = styled.div`
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-`;
-
-const LoginForm = styled.div`
-  background-color: #ffffff;
-  padding: 20px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
-const Title = styled.h2`
-  text-align: center;
-  margin-bottom: 20px;
-`;
-
-const Form = styled.form`
-  display: flex;
-  flex-direction: column;
-`;
-
-const FormGroup = styled.div`
-  margin-bottom: 10px;
-`;
-
-const Label = styled.label`
-  font-weight: bold;
-  margin-bottom: 5px;
-`;
-
-const Input = styled.input`
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-`;
-
-const Button = styled.button`
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: #ffffff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-`;
 
 export default LoginPage;

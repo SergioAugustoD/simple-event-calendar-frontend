@@ -15,15 +15,15 @@ export default () => {
     [setSession]
   );
 
-  const handleLogOut = useCallback(() => {
+  const logout = useCallback(() => {
     setSession(null);
-    localStorage.removeItem("isLicensed");
-    localStorage.removeItem("login");
+    localStorage.removeItem("dd");
+    localStorage.removeItem("token");
   }, [setSession]);
 
   return {
     session,
     handleSignIn,
-    handleLogOut,
+    logout,
   };
 };

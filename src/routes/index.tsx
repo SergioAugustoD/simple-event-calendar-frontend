@@ -4,7 +4,10 @@ import CreateEventPage from "pages/CreateEvent";
 import CreateUserPage from "pages/CreateUser";
 import EventDetailPage from "pages/DetailEvent";
 import EventListPage from "pages/EventList";
+import ForgotPassword from "pages/ForgotPass";
+import HomePage from "pages/Home";
 import LoginPage from "pages/Login";
+import ResetPassword from "pages/ResetPassword";
 import { Route, BrowserRouter, Routes } from "react-router-dom";
 
 const AppRoutes = () => {
@@ -24,6 +27,8 @@ const AuthRoutes = () => {
       <Route path="*" element={<LoginPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<CreateUserPage />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
     </Routes>
   );
 };

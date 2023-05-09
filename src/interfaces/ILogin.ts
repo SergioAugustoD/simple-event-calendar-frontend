@@ -1,6 +1,6 @@
 export interface ILogin {
-  id_user: string;
-  email: string;
-  password: string;
-  token: string;
+  id_user?: string;
+  email?: string;
+  password?: string;
+  token?: string;
 }

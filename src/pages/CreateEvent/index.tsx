@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import {
   Box,
   Button,
@@ -9,7 +9,7 @@ import {
   Textarea,
   useToast,
 } from "@chakra-ui/react";
-import { IEvent } from "interfaces/IEvent";
+import { useForm } from "react-hook-form";
 import { EventService } from "services/EventService";
 import useLogin from "hooks/useLogin";
 import { useNavigate } from "react-router-dom";
@@ -19,35 +19,47 @@ type Event = {
   title: string;
   date: string;
   description: string;
+  location: string;
 };
 
 const CreateEventPage: React.FC = () => {
-  const [dataEvent, setDataEvent] = useState<IEvent>({});
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors, isSubmitting },
+  } = useForm<Event>();
   const { session } = useLogin();
   const navigate = useNavigate();
 
   const toast = useToast();
 
-  const handleCreateEvent = async () => {
-    // lógica para criar um novo evento
-    const response = await EventService.createEvent({
-      ...dataEvent,
-      id_user: parseInt(localStorage.getItem("dd")),
-    });
-
-    if (response.status === 200) {
-      toast({
-        title: response.msg,
-        status: "success",
-        duration: 3000,
-        isClosable: true,
+  const handleCreateEvent = async (data: Event) => {
+    try {
+      const response = await EventService.createEvent({
+        ...data,
+        id_user: parseInt(localStorage.getItem("dd") || ""),
       });
-      // Limpar os campos após criar o evento
-      setDataEvent({ date: "", description: "", title: "", location: "" });
-    }
-    if (response.err) {
+
+      if (response.status === 200) {
+        toast({
+          title: response.msg,
+          status: "success",
+          duration: 3000,
+          isClosable: true,
+        });
+        reset();
+      } else {
+        toast({
+          title: response.msg,
+          status: "error",
+          duration: 3000,
+          isClosable: true,
+        });
+      }
+    } catch (error) {
       toast({
-        title: response.msg,
+        title: "Erro ao criar o evento.",
         status: "error",
         duration: 3000,
         isClosable: true,
@@ -61,56 +73,70 @@ const CreateEventPage: React.FC = () => {
         Criar Evento
       </Heading>
 
-      <FormControl mb={4}>
-        <FormLabel>Título</FormLabel>
-        <Input
-          name="title"
-          value={dataEvent.title || ""}
-          onChange={(e) =>
-            setDataEvent({ ...dataEvent, title: e.target.value })
-          }
-          placeholder="Digite o título do evento"
-        />
-      </FormControl>
+      <form onSubmit={handleSubmit(handleCreateEvent)}>
+        <FormControl mb={4}>
+          <FormLabel>Título</FormLabel>
+          <Input
+            {...register("title", { required: true })}
+            placeholder="Digite o título do evento"
+          />
+          {errors.title && (
+            <Box color="red" mt={1}>
+              Campo obrigatório.
+            </Box>
+          )}
+        </FormControl>
 
-      <FormControl mb={4}>
-        <FormLabel>Data</FormLabel>
-        <Input
-          name="date"
-          value={dataEvent.date || ""}
-          type="date"
-          onChange={(e) => setDataEvent({ ...dataEvent, date: e.target.value })}
-          placeholder="Digite a data do evento"
-        />
-      </FormControl>
+        <FormControl mb={4}>
+          <FormLabel>Data</FormLabel>
+          <Input
+            {...register("date", { required: true })}
+            type="date"
+            placeholder="Digite a data do evento"
+          />
+          {errors.date && (
+            <Box color="red" mt={1}>
+              Campo obrigatório.
+            </Box>
+          )}
+        </FormControl>
 
-      <FormControl mb={4}>
-        <FormLabel>Descrição</FormLabel>
-        <Textarea
-          name="description"
-          value={dataEvent.description || ""}
-          onChange={(e) =>
-            setDataEvent({ ...dataEvent, description: e.target.value })
-          }
-          placeholder="Digite a descrição do evento"
-        />
-      </FormControl>
-      <FormControl mb={4}>
-        <FormLabel>Localização</FormLabel>
-        <Textarea
-          name="location"
-          value={dataEvent.location || ""}
-          onChange={(e) =>
-            setDataEvent({ ...dataEvent, location: e.target.value })
-          }
-          placeholder="Digite a localização do evento"
-        />
-      </FormControl>
+        <FormControl mb={4}>
+          <FormLabel>Descrição</FormLabel>
+          <Textarea
+            {...register("description", { required: true })}
+            placeholder="Digite a descrição do evento"
+          />
+          {errors.description && (
+            <Box color="red" mt={1}>
+              Campo obrigatório.
+            </Box>
+          )}
+        </FormControl>
 
-      <Button colorScheme="blue" onClick={handleCreateEvent}>
-        Criar Evento
-      </Button>
-      <Button onClick={() => navigate("/events")}>Voltar</Button>
+        <FormControl mb={4}>
+          <FormLabel>Localização</FormLabel>
+          <Textarea
+            {...register("location", { required: true })}
+            placeholder="Digite a localização do evento"
+          />
+          {errors.location && (
+            <Box color="red" mt={1}>
+              Campo obrigatório.
+            </Box>
+          )}
+        </FormControl>
+
+        <Button
+          colorScheme="blue"
+          type="submit"
+          isLoading={isSubmitting}
+          mr={2}
+        >
+          Criar Evento
+        </Button>
+        <Button onClick={() => navigate("/events")}>Voltar</Button>
+      </form>
     </Box>
   );
 };
