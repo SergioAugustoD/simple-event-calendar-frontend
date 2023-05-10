@@ -96,7 +96,7 @@ const CreateEventPage: React.FC = () => {
               {...register("category", { required: true })}
               placeholder="Digite a categoria do evento"
             />
-            {errors.title && <ErrorBox>Campo obrigatório.</ErrorBox>}
+            {errors.category && <ErrorBox>Campo obrigatório.</ErrorBox>}
           </FormControl>
           <FormControl>
             <FormLabel>Data</FormLabel>
@@ -172,4 +172,4 @@ const CreateEventPage: React.FC = () => {
   );
 };
 
-export default CreateEventPage;
+export default React.memo(CreateEventPage);

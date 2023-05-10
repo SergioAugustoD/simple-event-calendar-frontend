@@ -1,4 +1,5 @@
 import { IEvent } from "interfaces/IEvent";
+import { IParticipant } from "interfaces/IParticipants";
 import { instance } from "providers/api";
 
 const createEvent = async (data: IEvent) => {
@@ -34,9 +35,23 @@ const deleteEvent = async (id: number) => {
   const response = await instance.delete(`/eventos/${id}`);
   return response.data;
 };
+
+const getParticipants = async (data: IParticipant) => {
+  const response = await instance.post("/eventos/participants", data);
+
+  return response.data;
+};
+
+const addUserToEvent = async (data: IParticipant) => {
+  const response = await instance.post("/eventos/add-user-event", data);
+
+  return response.data;
+};
 export const EventService = {
   createEvent,
   listEvents,
   getEvent,
   deleteEvent,
+  getParticipants,
+  addUserToEvent,
 };

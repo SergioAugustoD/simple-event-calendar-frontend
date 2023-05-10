@@ -1,5 +1,8 @@
+import { useState, useEffect } from "react";
+import { Route, BrowserRouter, Routes } from "react-router-dom";
 import Layout from "Layout";
 import useLogin from "hooks/useLogin";
+
 import AboutPage from "pages/About";
 import CreateEventPage from "pages/CreateEvent";
 import CreateUserPage from "pages/CreateUser";
@@ -8,13 +11,11 @@ import EventListPage from "pages/EventList";
 import ForgotPassword from "pages/ForgotPass";
 import LoginPage from "pages/Login";
 import ResetPassword from "pages/ResetPassword";
-import { Route, BrowserRouter, Routes } from "react-router-dom";
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="*" element={<EventListPage />} />
-      <Route path="/events" element={<EventListPage />} />
+      <Route path="/events/*" element={<EventListPage />} />
       <Route path="/create-event" element={<CreateEventPage />} />
       <Route path="/event-detail/:id" element={<EventDetailPage />} />
       <Route path="/about" element={<AboutPage />} />
@@ -25,7 +26,7 @@ const AppRoutes = () => {
 const AuthRoutes = () => {
   return (
     <Routes>
-      <Route path="*" element={<LoginPage />} />
+      <Route path="/" element={<LoginPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<CreateUserPage />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />

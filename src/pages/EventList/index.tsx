@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { Suspense, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -8,28 +8,32 @@ import {
   Text,
   Tooltip,
   Input,
+  Progress,
+  CircularProgress,
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { EventService } from "services/EventService";
 import { ComponentsEventCard, EventCard } from "./styles";
 import { BsArrowLeft, BsArrowRight, BsPlus } from "react-icons/bs";
+import { IEvent } from "interfaces/IEvent";
 
 const EventListPage: React.FC = () => {
   const navigate = useNavigate();
-  const [events, setEvents] = useState([] || null);
+  const [events, setEvents] = useState<IEvent[]>([]);
   const [page, setPage] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleCreate = () => {
     navigate("/create-event");
   };
 
   const handleNext = () => {
-    setPage(page + 1);
+    setPage((prevPage) => prevPage + 1);
   };
 
   const handlePrevious = () => {
-    setPage(page - 1);
+    setPage((prevPage) => prevPage - 1);
   };
 
   const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -37,23 +41,32 @@ const EventListPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const listEvent = async () => {
-      const data = await EventService.listEvents();
-      setEvents(data);
+    const fetchEvents = async () => {
+      try {
+        const data = await EventService.listEvents();
+        setEvents(data);
+        setIsLoading(false);
+      } catch (error) {
+        console.error("Erro ao buscar os eventos:", error);
+        setIsLoading(false);
+      }
     };
-    listEvent();
+
+    fetchEvents();
   }, []);
 
   const renderEvents = () => {
     let filteredEvents = events;
 
     if (searchTerm) {
+      const searchTermLowerCase = searchTerm.toLowerCase();
       filteredEvents = events.filter(
         (event) =>
-          event.title.includes(searchTerm.toLowerCase()) ||
-          event.description.includes(searchTerm.toLowerCase()) ||
-          event.location.includes(searchTerm.toLowerCase()) ||
-          event.date.includes(searchTerm.toLowerCase())
+          event.title.toLowerCase().includes(searchTermLowerCase) ||
+          event.description.toLowerCase().includes(searchTermLowerCase) ||
+          event.location.toLowerCase().includes(searchTermLowerCase) ||
+          event.date.toLowerCase().includes(searchTermLowerCase) ||
+          event.created_by.toLowerCase().includes(searchTermLowerCase)
       );
     }
 
@@ -72,7 +85,6 @@ const EventListPage: React.FC = () => {
       >
         <ComponentsEventCard>
           <Heading size="md">{event.title}</Heading>
-
           <Flex>
             <Text>{event.date}</Text>
             <Text marginLeft={5}>{event.category}</Text>
@@ -89,12 +101,7 @@ const EventListPage: React.FC = () => {
   };
 
   return (
-    <Box
-      p={4}
-      display={"flex"}
-      flexDirection={"column"}
-      alignItems={"flex-start"}
-    >
+    <Box p={4} display="flex" flexDirection="column" alignItems="flex-start">
       <Flex justify="flex-start" mt={4} margin={4}>
         <Heading size="lg" mb={4}>
           Lista de Eventos
@@ -112,25 +119,38 @@ const EventListPage: React.FC = () => {
           width="450px"
         />
       </Flex>
-      <Flex justify="flex-start" mt={4}>
-        {events && events.length > 0 ? (
-          <Grid templateColumns="repeat(3, 1fr)" gap={4}>
-            {renderEvents()}
-          </Grid>
+      <Suspense
+        fallback={
+          <CircularProgress alignSelf={"center"} size="70px" isIndeterminate />
+        }
+      >
+        {isLoading ? (
+          <CircularProgress alignSelf={"center"} size="70px" isIndeterminate />
         ) : (
-          <Text>Nenhum evento encontrado</Text>
+          <Flex justify="flex-start" mt={4}>
+            {events.length > 0 ? (
+              <Grid templateColumns="          repeat(3, 1fr)" gap={4}>
+                {renderEvents()}
+              </Grid>
+            ) : (
+              <Text>Nenhum evento encontrado</Text>
+            )}
+            {page > 0 && (
+              <Button
+                onClick={handlePrevious}
+                mr={2}
+                leftIcon={<BsArrowLeft size={24} />}
+              />
+            )}
+            {events.length > (page + 1) * 12 && (
+              <Button
+                onClick={handleNext}
+                leftIcon={<BsArrowRight size={24} />}
+              />
+            )}
+          </Flex>
         )}
-        {page > 0 && (
-          <Button
-            onClick={handlePrevious}
-            mr={2}
-            leftIcon={<BsArrowLeft size={24} />}
-          />
-        )}
-        {events && events.length > (page + 1) * 12 && (
-          <Button onClick={handleNext} leftIcon={<BsArrowRight size={24} />} />
-        )}
-      </Flex>
+      </Suspense>
     </Box>
   );
 };

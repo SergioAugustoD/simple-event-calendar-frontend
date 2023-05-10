@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import {
   Button,
   IconButton,
@@ -11,7 +11,6 @@ import { BsQuestionSquare } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { CloseIcon, HamburgerIcon } from "@chakra-ui/icons";
 import useLogin from "hooks/useLogin";
-import Footer from "components/Footer";
 import { Backdrop, BoxUser, Container, Content, Sidebar } from "./styles";
 
 type LayoutProps = {
@@ -25,17 +24,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [isSmallerScreen] = useMediaQuery("(max-width: 768px)");
   const { logout } = useLogin();
 
-  const handleToggleSidebar = () => {
+  const handleToggleSidebar = useCallback(() => {
     onToggle();
-  };
+  }, [onToggle]);
 
-  const handleCloseSidebar = () => {
+  const handleCloseSidebar = useCallback(() => {
     if (isOpen) {
       onToggle();
     }
-  };
+  }, [isOpen, onToggle]);
 
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     setTimeout(() => {
       toast({
         title: "Deslogado com sucesso",
@@ -43,9 +42,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         status: "success",
       });
       logout();
-      navigate("/");
+      navigate("/", { replace: true });
     }, 2000);
-  };
+  }, []);
 
   return (
     <Container>
@@ -97,9 +96,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         />
       </Sidebar>
       <Content onClick={handleCloseSidebar}>{children}</Content>
-      <Footer />
     </Container>
   );
 };
 
-export default Layout;
+export default React.memo(Layout);

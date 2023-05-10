@@ -21,7 +21,7 @@ export const Sidebar = styled.aside<{ open: boolean }>`
     rgba(0, 212, 255, 1) 100%
   );
   padding: 1rem;
-  width: 10.41vw;
+  width: 8vw;
   height: 100vh;
   transition: transform 0.3s ease;
   z-index: 1;
