@@ -11,6 +11,7 @@ export default () => {
       setSession(data);
       localStorage.setItem("dd", data.id_user);
       localStorage.setItem("token", data.token);
+      localStorage.setItem("given_name", data.given_name);
     },
     [setSession]
   );
@@ -19,6 +20,7 @@ export default () => {
     setSession(null);
     localStorage.removeItem("dd");
     localStorage.removeItem("token");
+    localStorage.removeItem("given_name");
   }, [setSession]);
 
   return {

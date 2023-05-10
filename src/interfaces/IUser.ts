@@ -3,4 +3,5 @@ export interface IUser {
   email?: string;
   password?: string;
   confirmPassword?: string;
+  given_name?: string;
 }

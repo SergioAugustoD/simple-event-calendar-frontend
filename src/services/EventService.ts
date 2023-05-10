@@ -7,7 +7,12 @@ const createEvent = async (data: IEvent) => {
     date: data.date,
     description: data.description,
     location: data.location,
+    locationNumber: data.locationNumber,
+    locationCity: data.locationCity,
+    locationCEP: data.locationCEP,
     id_user: data.id_user,
+    created_by: localStorage.getItem("given_name"),
+    category: "#" + data.category,
   });
   return response.data;
 };

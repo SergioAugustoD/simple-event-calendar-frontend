@@ -1,13 +1,29 @@
 import React from "react";
-import { Box, Button, Heading, Text, useToast, Flex } from "@chakra-ui/react";
+import { Button, useToast, Flex, Heading } from "@chakra-ui/react";
 import { AiFillDelete } from "react-icons/ai";
 import { useLocation, useNavigate } from "react-router-dom";
 import { EventService } from "services/EventService";
+import {
+  Container,
+  DeleteButton,
+  EventDetails,
+  EventInfo,
+  EventTitle,
+} from "./styles";
+import { BiMap } from "react-icons/bi";
 
 const EventDetailPage: React.FC = () => {
   const useLoc = useLocation();
-  const { id_user, id, title, date, description, location } =
-    useLoc.state.event;
+  const {
+    id_user,
+    id,
+    title,
+    date,
+    description,
+    location,
+    category,
+    created_by,
+  } = useLoc.state.event;
   const navigate = useNavigate();
   const toast = useToast();
   const iduser = localStorage.getItem("dd");
@@ -33,40 +49,51 @@ const EventDetailPage: React.FC = () => {
   };
 
   return (
-    <Box>
+    <Container>
       <Heading as="h1" size="xl" mb={4}>
         Detalhes do Evento
       </Heading>
-      <Box p={4} borderWidth={1} borderRadius="md" shadow="md">
-        <Text fontSize="lg" mb={2}>
+      <EventDetails p={4} borderWidth={1} borderRadius="md" shadow="md">
+        <EventInfo fontSize="lg" mb={4}>
           <strong>Título:</strong> {title}
-        </Text>
-        <Text fontSize="lg" mb={2}>
+          <strong style={{ marginLeft: "25px" }}>Categoria:</strong> {category}
+        </EventInfo>
+        <EventInfo fontSize="lg" mb={4}>
           <strong>Data:</strong> {date}
-        </Text>
-        <Text fontSize="lg" mb={2}>
+        </EventInfo>
+        <EventInfo fontSize="lg" mb={4}>
           <strong>Descrição:</strong> {description}
-        </Text>
-        <Text fontSize="lg" mb={4}>
+        </EventInfo>
+        <EventInfo fontSize="lg" mb={4}>
           <strong>Localização:</strong> {location}
-        </Text>
+        </EventInfo>
+        <EventInfo fontSize="lg" mb={4} display="flex" flexDirection="row">
+          <strong>Mapa: </strong>
+          <a
+            href={`https://www.google.com.br/maps/place/${location}`}
+            target="_blank"
+          >
+            <BiMap size={24} color="red" />
+          </a>
+          <strong style={{ marginLeft: "25px" }}>Autor:</strong> {created_by}
+        </EventInfo>
         {id_user === parseInt(iduser) && (
-          <Flex justify="flex-end">
-            <Button
+          <Flex justify="flex-start">
+            <DeleteButton
               colorScheme="red"
               variant="ghost"
               onClick={() => handleDelete(id)}
               leftIcon={<AiFillDelete />}
             >
               Deletar Evento
-            </Button>
+            </DeleteButton>
           </Flex>
         )}
-      </Box>
-      <Button mt={4} onClick={() => navigate("/events", { replace: true })}>
+      </EventDetails>
+      <Button mt={4} onClick={() => navigate("/events")}>
         Voltar
       </Button>
-    </Box>
+    </Container>
   );
 };
 

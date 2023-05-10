@@ -9,15 +9,16 @@ import {
 import { FiLogOut, FiCalendar } from "react-icons/fi";
 import { BsQuestionSquare } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
-import { Backdrop, Container, Content, Sidebar } from "./styles";
 import { CloseIcon, HamburgerIcon } from "@chakra-ui/icons";
 import useLogin from "hooks/useLogin";
+import Footer from "components/Footer";
+import { Backdrop, BoxUser, Container, Content, Sidebar } from "./styles";
 
-type SidebarProps = {
+type LayoutProps = {
   children: React.ReactNode;
 };
 
-const Layout: React.FC<SidebarProps> = ({ children }) => {
+const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const toast = useToast();
   const { isOpen, onToggle } = useDisclosure();
@@ -59,21 +60,14 @@ const Layout: React.FC<SidebarProps> = ({ children }) => {
           onClick={handleToggleSidebar}
         />
       )}
+      {isSmallerScreen && isOpen && <Backdrop onClick={handleToggleSidebar} />}
       <Sidebar open={!isSmallerScreen || isOpen}>
-        <IconButton
-          aria-label="Logout"
-          icon={<FiLogOut />}
-          variant="ghost"
-          onClick={handleLogout}
-          colorScheme="red"
-          fontSize="20px"
-          marginBottom={4}
-        />
+        <BoxUser className="box-user">USUÁRIO</BoxUser>
         <Button
           leftIcon={<FiCalendar />}
           variant="ghost"
-          colorScheme="red"
-          justifyContent="flex-start"
+          colorScheme="orange"
+          justifyContent="center"
           width="100%"
           onClick={() => navigate("/events")}
         >
@@ -82,19 +76,28 @@ const Layout: React.FC<SidebarProps> = ({ children }) => {
         <Button
           leftIcon={<BsQuestionSquare />}
           variant="ghost"
-          colorScheme="red"
-          justifyContent="flex-start"
+          colorScheme="orange"
+          justifyContent="center"
           width="100%"
           marginBottom={2}
           onClick={() => navigate("/about")}
         >
           About
         </Button>
+        <IconButton
+          aria-label="Logout"
+          icon={<FiLogOut />}
+          variant="ghost"
+          onClick={handleLogout}
+          colorScheme="orange"
+          fontSize="24px"
+          name="Logout"
+          justifyContent="flex-start"
+          marginTop="auto"
+        />
       </Sidebar>
-      <Content p={4} onClick={handleCloseSidebar}>
-        {children}
-      </Content>
-      {isOpen && <Backdrop onClick={handleToggleSidebar} />}
+      <Content onClick={handleCloseSidebar}>{children}</Content>
+      <Footer />
     </Container>
   );
 };

@@ -6,6 +6,7 @@ interface Event {
   title: string;
   date: string;
   description: string;
+  location: string;
 }
 
 interface EventItemProps {
@@ -18,6 +19,7 @@ const EventItem: React.FC<EventItemProps> = ({ event }) => {
       <Title>{event.title}</Title>
       <Date>{event.date}</Date>
       <Description>{event.description}</Description>
+      <Location>{event.location}</Location>
     </Container>
   );
 };
@@ -39,6 +41,10 @@ const Date = styled.p`
 `;
 
 const Description = styled.p`
+  margin-bottom: 5px;
+`;
+
+const Location = styled.p`
   margin-bottom: 5px;
 `;
 

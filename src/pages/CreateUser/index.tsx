@@ -17,11 +17,19 @@ import { useForm } from "react-hook-form";
 import { BiHide, BiShow } from "react-icons/bi";
 import { UserService } from "services/UserService";
 import { useNavigate } from "react-router-dom";
+import {
+  Container,
+  ErrorBox,
+  PasswordToggleBtn,
+  SignUpForm,
+  SignUpHeading,
+} from "./styles";
 type FormData = {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
+  given_name: string;
 };
 
 const SignupPage: React.FC = () => {
@@ -55,12 +63,12 @@ const SignupPage: React.FC = () => {
   const onSubmit = handleSubmit(handleFormSubmit);
 
   return (
-    <Box maxWidth="400px" margin="0 auto" mt="8" p="4">
-      <Heading mb="4" size="lg" textAlign="center">
+    <Container>
+      <SignUpHeading mb="4" size="lg">
         Sign Up
-      </Heading>
+      </SignUpHeading>
       <Box borderWidth="1px" borderRadius="lg" p="6">
-        <form onSubmit={onSubmit}>
+        <SignUpForm onSubmit={onSubmit}>
           <Stack spacing="4">
             <FormControl isInvalid={!!errors.name}>
               <FormLabel htmlFor="name">Nome</FormLabel>
@@ -88,6 +96,17 @@ const SignupPage: React.FC = () => {
               />
               <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
             </FormControl>
+            <FormControl isInvalid={!!errors.given_name}>
+              <FormLabel htmlFor="given_name">Apelido</FormLabel>
+              <Input
+                {...register("given_name", {
+                  required: "Apelido é obrigatório",
+                })}
+                type="given_name"
+                id="given_name"
+              />
+              <FormErrorMessage>{errors.given_name?.message}</FormErrorMessage>
+            </FormControl>
             <FormControl isInvalid={!!errors.password}>
               <FormLabel htmlFor="password">Password</FormLabel>
               <InputGroup>
@@ -103,11 +122,16 @@ const SignupPage: React.FC = () => {
                   id="password"
                 />
                 <InputRightElement width="4.5rem">
-                  <Button h="1.75rem" size="sm" onClick={handleClick}>
+                  <PasswordToggleBtn
+                    h="1.75rem"
+                    onClick={handleClick}
+                    aria-label={show ? "Hide password" : "Show password"}
+                  >
                     {show ? <BiHide /> : <BiShow />}
-                  </Button>
+                  </PasswordToggleBtn>
                 </InputRightElement>
               </InputGroup>
+
               <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
               <FormHelperText>
                 Password strength:{" "}
@@ -125,13 +149,17 @@ const SignupPage: React.FC = () => {
                     validate: (value) =>
                       value === password.current || "Passwords do not match",
                   })}
-                  type="password"
+                  type={show ? "text" : "password"}
                   id="confirmPassword"
                 />
                 <InputRightElement width="4.5rem">
-                  <Button h="1.75rem" size="sm" onClick={handleClick}>
+                  <PasswordToggleBtn
+                    h="1.75rem"
+                    onClick={handleClick}
+                    aria-label={show ? "Hide password" : "Show password"}
+                  >
                     {show ? <BiHide /> : <BiShow />}
-                  </Button>
+                  </PasswordToggleBtn>
                 </InputRightElement>
               </InputGroup>
               <FormErrorMessage>
@@ -142,9 +170,9 @@ const SignupPage: React.FC = () => {
               Sign Up
             </Button>
           </Stack>
-        </form>
+        </SignUpForm>
       </Box>
-    </Box>
+    </Container>
   );
 };
 

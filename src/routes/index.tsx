@@ -1,11 +1,11 @@
 import Layout from "Layout";
 import useLogin from "hooks/useLogin";
+import AboutPage from "pages/About";
 import CreateEventPage from "pages/CreateEvent";
 import CreateUserPage from "pages/CreateUser";
 import EventDetailPage from "pages/DetailEvent";
 import EventListPage from "pages/EventList";
 import ForgotPassword from "pages/ForgotPass";
-import HomePage from "pages/Home";
 import LoginPage from "pages/Login";
 import ResetPassword from "pages/ResetPassword";
 import { Route, BrowserRouter, Routes } from "react-router-dom";
@@ -17,6 +17,7 @@ const AppRoutes = () => {
       <Route path="/events" element={<EventListPage />} />
       <Route path="/create-event" element={<CreateEventPage />} />
       <Route path="/event-detail/:id" element={<EventDetailPage />} />
+      <Route path="/about" element={<AboutPage />} />
     </Routes>
   );
 };
