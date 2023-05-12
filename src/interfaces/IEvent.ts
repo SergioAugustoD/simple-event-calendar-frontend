@@ -10,4 +10,6 @@ export interface IEvent {
   id_user?: number;
   created_by?: string;
   category?: string;
+  confirme_until?: string;
+  confirmed?: string;
 }

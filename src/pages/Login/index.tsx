@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   Box,
   Button,
+  Container,
   FormControl,
   FormErrorMessage,
   FormLabel,
@@ -15,6 +16,8 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router-dom";
 import useLogin from "hooks/useLogin";
 import { LoginService } from "services/LoginService";
+import styled from "styled-components";
+import { LoginFormContainer, LoginHeading } from "./styles";
 
 type FormData = {
   email: string;
@@ -32,8 +35,8 @@ const LoginPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const toast = useToast();
 
-  const handleFormSubmit = useCallback(
-    async (data: FormData) => {
+  const handleFormSubmit = useMemo(
+    () => async (data: FormData) => {
       window.event.preventDefault();
       setIsLoading(true);
 
@@ -65,15 +68,13 @@ const LoginPage: React.FC = () => {
         });
       }
     },
-    [handleSignIn, navigate]
+    [handleSignIn, navigate, toast]
   );
 
   return (
-    <Box maxWidth="400px" margin="0 auto" mt="8" p="4">
-      <Heading mb="4" size="lg" textAlign="center">
-        Login
-      </Heading>
-      <Box borderWidth="1px" borderRadius="lg" p="6">
+    <Container>
+      <LoginHeading size="lg">Login</LoginHeading>
+      <LoginFormContainer borderWidth="1px" borderRadius="lg" p="6">
         <form onSubmit={handleSubmit(handleFormSubmit)}>
           <Stack spacing="4">
             <FormControl isInvalid={!!errors.email}>
@@ -121,8 +122,8 @@ const LoginPage: React.FC = () => {
             </Text>
           </Stack>
         </form>
-      </Box>
-    </Box>
+      </LoginFormContainer>
+    </Container>
   );
 };
 

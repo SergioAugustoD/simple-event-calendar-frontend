@@ -36,7 +36,6 @@ const ForgotPassword: React.FC = () => {
       toast({ title: response.msg, duration: 3000, status: "error" });
       return;
     }
-    console.log(response);
     // Exiba uma mensagem de sucesso ou redirecione para outra página
     toast({
       title: "Email enviado com sucesso!",

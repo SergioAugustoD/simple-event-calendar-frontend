@@ -1,31 +1,40 @@
 import { loginState } from "atoms/Login";
 import { ILogin } from "interfaces/ILogin";
-import { useCallback } from "react";
+import { useCallback, useMemo } from "react";
 import { useRecoilState } from "recoil";
 
-export default () => {
+export default function useAuth() {
   const [session, setSession] = useRecoilState(loginState);
 
   const handleSignIn = useCallback(
     (data: ILogin) => {
       setSession(data);
-      localStorage.setItem("dd", data.id_user);
-      localStorage.setItem("token", data.token);
-      localStorage.setItem("given_name", data.given_name);
     },
     [setSession]
   );
 
   const logout = useCallback(() => {
     setSession(null);
-    localStorage.removeItem("dd");
-    localStorage.removeItem("token");
-    localStorage.removeItem("given_name");
   }, [setSession]);
 
-  return {
-    session,
-    handleSignIn,
-    logout,
-  };
-};
+  const localStorageValues = useMemo(
+    () => ({
+      dd: session?.userId,
+      token: session?.token,
+      given_name: session?.givenName,
+    }),
+    [session]
+  );
+
+  useMemo(() => {
+    Object.entries(localStorageValues).forEach(([key, value]) => {
+      if (value) {
+        localStorage.setItem(key, value);
+      } else {
+        localStorage.removeItem(key);
+      }
+    });
+  }, [localStorageValues]);
+
+  return { session, handleSignIn, logout };
+}

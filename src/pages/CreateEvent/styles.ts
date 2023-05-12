@@ -14,9 +14,10 @@ export const Container = styled.div`
   }
 `;
 
-export const CreateEventHeading = styled.div`
+export const CreateEventHeading = styled(Heading)`
   font-size: 24px;
   margin-bottom: 16px;
+  text-align: center;
 `;
 
 export const ErrorBox = styled.div`

@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { useEffect, useState, ChangeEvent, useCallback } from "react";
 import {
   Box,
   Button,
@@ -13,37 +13,50 @@ import {
 } from "@chakra-ui/react";
 import { useNavigate } from "react-router-dom";
 import { EventService } from "services/EventService";
-import { ComponentsEventCard, EventCard } from "./styles";
+import styled from "styled-components";
 import { BsArrowLeft, BsArrowRight, BsPlus } from "react-icons/bs";
 import { IEvent } from "interfaces/IEvent";
+import {
+  Container,
+  CreateButton,
+  EventCard,
+  EventCardContent,
+  EventInfo,
+  EventTitle,
+} from "./styles";
 
-const EventListPage: React.FC = () => {
+interface EventListPageProps {}
+
+const EventListPage: React.FC<EventListPageProps> = () => {
   const navigate = useNavigate();
   const [events, setEvents] = useState<IEvent[]>([]);
-  const [page, setPage] = useState(0);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isLoading, setIsLoading] = useState(true);
+  const [page, setPage] = useState<number>(0);
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [isLoading, setIsLoading] = useState<boolean>(true);
 
-  const handleCreate = () => {
+  const handleCreate = (): void => {
     navigate("/create-event");
   };
 
-  const handleNext = () => {
+  const handleNext = (): void => {
     setPage((prevPage) => prevPage + 1);
   };
 
-  const handlePrevious = () => {
+  const handlePrevious = (): void => {
     setPage((prevPage) => prevPage - 1);
   };
 
-  const handleSearch = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(event.target.value);
-  };
+  const handleSearch = useCallback(
+    (event: ChangeEvent<HTMLInputElement>): void => {
+      setSearchTerm(event.target.value);
+    },
+    []
+  );
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchEvents = async (): Promise<void> => {
       try {
-        const data = await EventService.listEvents();
+        const data: IEvent[] = await EventService.listEvents();
         setEvents(data);
         setIsLoading(false);
       } catch (error) {
@@ -55,103 +68,106 @@ const EventListPage: React.FC = () => {
     fetchEvents();
   }, []);
 
-  const renderEvents = () => {
-    let filteredEvents = events;
+  const renderEvents = (): React.ReactNode => {
+    let filteredEvents: IEvent[] = events;
 
     if (searchTerm) {
-      const searchTermLowerCase = searchTerm.toLowerCase();
-      filteredEvents = events.filter(
-        (event) =>
-          event.title.toLowerCase().includes(searchTermLowerCase) ||
-          event.description.toLowerCase().includes(searchTermLowerCase) ||
-          event.location.toLowerCase().includes(searchTermLowerCase) ||
-          event.date.toLowerCase().includes(searchTermLowerCase) ||
-          event.created_by.toLowerCase().includes(searchTermLowerCase)
+      const searchTermLowerCase: string = searchTerm.toLowerCase();
+      filteredEvents = events.filter((event) =>
+        Object.values(event).some(
+          (value) =>
+            typeof value === "string" &&
+            value.toLowerCase().includes(searchTermLowerCase)
+        )
       );
     }
 
-    const startIndex = page * 12;
-    const endIndex = startIndex + 12;
-    const currentEvents = filteredEvents.slice(startIndex, endIndex);
+    const startIndex: number = page * 12;
+    const endIndex: number = startIndex + 12;
+    const currentEvents: IEvent[] = filteredEvents.slice(startIndex, endIndex);
 
-    return currentEvents.map((event) => (
-      <EventCard
-        boxShadow="md"
-        width={"28.64vw"}
-        key={event.id}
-        onClick={() =>
-          navigate(`/event-detail/${event.id}`, { state: { event } })
-        }
-      >
-        <ComponentsEventCard>
-          <Heading size="md">{event.title}</Heading>
-          <Flex>
-            <Text>{event.date}</Text>
-            <Text marginLeft={5}>{event.category}</Text>
-          </Flex>
-          <Text>{event.description}</Text>
-          <Text>{event.location}</Text>
-          <Text size="sm">
-            <strong>Autor: </strong>
-            {event.created_by}
-          </Text>
-        </ComponentsEventCard>
-      </EventCard>
-    ));
+    return (
+      <Grid templateColumns="repeat(4, 1fr)" gap={4}>
+        {currentEvents.map((event: IEvent) => (
+          <EventCard
+            key={event.id}
+            onClick={() =>
+              navigate(`/event-detail/${event.id}`, { state: { event } })
+            }
+          >
+            <EventCardContent>
+              <EventTitle as="h2">{event.title}</EventTitle>
+              <EventInfo>{event.date}</EventInfo>
+              <EventInfo>{event.category}</EventInfo>
+              <Text>{event.description}</Text>
+              <Text>{event.location}</Text>
+              <Text>
+                <strong>Author:</strong> {event.created_by}
+              </Text>
+            </EventCardContent>
+          </EventCard>
+        ))}
+      </Grid>
+    );
   };
 
   return (
-    <Box p={4} display="flex" flexDirection="column" alignItems="flex-start">
-      <Flex justify="flex-start" mt={4} margin={4}>
-        <Heading size="lg" mb={4}>
+    <Container>
+      <Flex justify="space-between" align="center" mb={4}>
+        <Heading as="h1" size="lg">
           Lista de Eventos
         </Heading>
         <Tooltip label="Criar evento">
-          <Button onClick={handleCreate} marginLeft={10}>
-            <BsPlus size={45} />
-          </Button>
+          <CreateButton onClick={handleCreate} leftIcon={<BsPlus size={24} />}>
+            Criar Evento
+          </CreateButton>
         </Tooltip>
-        <Input
-          placeholder="Buscar evento por título, descrição, data ou localização"
-          marginLeft={10}
-          value={searchTerm}
-          onChange={handleSearch}
-          width="450px"
-        />
       </Flex>
-      <Suspense
-        fallback={
-          <CircularProgress alignSelf={"center"} size="70px" isIndeterminate />
-        }
-      >
-        {isLoading ? (
-          <CircularProgress alignSelf={"center"} size="70px" isIndeterminate />
-        ) : (
-          <Flex justify="flex-start" mt={4}>
-            {events.length > 0 ? (
-              <Grid templateColumns="          repeat(3, 1fr)" gap={4}>
-                {renderEvents()}
-              </Grid>
-            ) : (
-              <Text>Nenhum evento encontrado</Text>
-            )}
-            {page > 0 && (
-              <Button
-                onClick={handlePrevious}
-                mr={2}
-                leftIcon={<BsArrowLeft size={24} />}
-              />
-            )}
-            {events.length > (page + 1) * 12 && (
-              <Button
-                onClick={handleNext}
-                leftIcon={<BsArrowRight size={24} />}
-              />
-            )}
-          </Flex>
-        )}
-      </Suspense>
-    </Box>
+      <Input
+        placeholder="Buscar evento por título, descrição, data ou localização"
+        value={searchTerm}
+        onChange={handleSearch}
+        mb={4}
+      />
+      {isLoading ? (
+        <Flex justify="center" align="center" height="300px">
+          <CircularProgress isIndeterminate />
+        </Flex>
+      ) : (
+        <>
+          {events.length > 0 ? (
+            <>
+              {renderEvents()}
+              <Flex justify="center" mt={4}>
+                {page > 0 && (
+                  <Button
+                    onClick={handlePrevious}
+                    leftIcon={<BsArrowLeft size={24} />}
+                    variant="outline"
+                    colorScheme="teal"
+                    mr={2}
+                  >
+                    Anterior
+                  </Button>
+                )}
+                {events.length > (page + 1) * 12 && (
+                  <Button
+                    onClick={handleNext}
+                    rightIcon={<BsArrowRight size={24} />}
+                    variant="outline"
+                    colorScheme="teal"
+                  >
+                    Próximo
+                  </Button>
+                )}
+              </Flex>
+            </>
+          ) : (
+            <Text>Nenhum evento encontrado</Text>
+          )}
+        </>
+      )}
+    </Container>
   );
 };
 

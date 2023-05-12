@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Button,
   useToast,
   Flex,
   Heading,
-  Box,
   Text,
   CircularProgress,
   Modal,
@@ -25,9 +24,10 @@ import {
   DeleteButton,
   EventDetails,
   EventInfo,
-  EventTitle,
+  StyledButton,
 } from "./styles";
 import { BiMap } from "react-icons/bi";
+import { ArrowBackIcon } from "@chakra-ui/icons";
 
 const EventDetailPage = () => {
   const useLoc = useLocation();
@@ -40,36 +40,27 @@ const EventDetailPage = () => {
     location,
     category,
     created_by,
+    confirme_until,
   } = useLoc.state.event;
   const navigate = useNavigate();
   const toast = useToast();
   const iduser = localStorage.getItem("dd");
-  const [participants, setParticipants] = useState([]);
+  const [participants, setParticipants] = useState([] || null);
   const [isLoading, setIsLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchParticipants = async () => {
-      setIsLoading(true);
-      const data = await EventService.getParticipants({ id_event: id });
-      if (data) {
-        setParticipants(data);
-        setIsLoading(false);
-      }
-    };
-    fetchParticipants();
-  }, [id]);
-
   const handleDelete = async (id: number) => {
     try {
-      await EventService.deleteEvent(id);
+      await Promise.all([
+        EventService.deleteEvent(id),
+        navigate("/events", { replace: true }),
+      ]);
       toast({
         title: "Evento deletado com sucesso!",
         status: "success",
         duration: 3000,
         isClosable: true,
       });
-      navigate("/events", { replace: true });
     } catch (error) {
       toast({
         title: "Erro ao deletar o evento.",
@@ -80,40 +71,63 @@ const EventDetailPage = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchParticipants = async () => {
+      setIsLoading(true);
+      try {
+        const { data } = await EventService.getParticipants({ id_event: id });
+        setParticipants(data);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchParticipants();
+  }, [id]);
   const handleAddParticipant = async () => {
-    try {
-      const currentUser = localStorage.getItem("given_name");
-      if (currentUser && currentUser !== created_by) {
-        await EventService.addUserToEvent({
+    const { addUserToEvent } = EventService;
+
+    const currentUser = localStorage.getItem("given_name");
+    if (currentUser && currentUser !== created_by) {
+      const id_user = +localStorage.getItem("dd");
+      const name_participant = currentUser;
+
+      try {
+        const res = await addUserToEvent({
           id_event: id,
-          id_user: id_user,
-          name_participant: currentUser,
+          id_user,
+          name_participant,
         });
-        setParticipants((prevParticipants) => [
-          ...prevParticipants,
-          { name_participant: currentUser },
-        ]);
+
+        if (res.status === 200) {
+          setParticipants((prevParticipants) => [
+            ...prevParticipants,
+            { name_participant },
+          ]);
+
+          toast({
+            title: res.msg,
+            status: "success",
+            duration: 3000,
+            isClosable: true,
+          });
+        } else {
+          toast({
+            title: res.msg,
+            status: "error",
+            duration: 3000,
+            isClosable: true,
+          });
+        }
+      } catch (error) {
         toast({
-          title: "Você foi adicionado à lista de participantes!",
-          status: "success",
-          duration: 3000,
-          isClosable: true,
-        });
-      } else {
-        toast({
-          title: "Você não pode se adicionar à lista de participantes.",
-          status: "warning",
+          title: "Erro ao adicionar participante.",
+          status: "error",
           duration: 3000,
           isClosable: true,
         });
       }
-    } catch (error) {
-      toast({
-        title: "Erro ao adicionar participante.",
-        status: "error",
-        duration: 3000,
-        isClosable: true,
-      });
     }
   };
 
@@ -124,7 +138,6 @@ const EventDetailPage = () => {
   const handleModalClose = () => {
     setIsModalOpen(false);
   };
-
   return (
     <Container>
       <Heading as="h1" size="xl" mb={4}>
@@ -138,9 +151,14 @@ const EventDetailPage = () => {
           <strong>Título:</strong> {title}
           <strong style={{ marginLeft: "25px" }}>Categoria:</strong> {category}
         </EventInfo>
-        <EventInfo fontSize="lg" mb={4}>
-          <strong>Data:</strong> {date}
-        </EventInfo>
+        <Flex>
+          <EventInfo fontSize="lg" mb={4}>
+            <strong>Data:</strong> {date}
+          </EventInfo>
+          <EventInfo fontSize="lg" mb={4} marginLeft={"40px"}>
+            <strong>Data/Confirmação:</strong> {confirme_until}
+          </EventInfo>
+        </Flex>
         <EventInfo fontSize="lg" mb={4}>
           <strong>Descrição:</strong> {description}
         </EventInfo>
@@ -151,7 +169,6 @@ const EventDetailPage = () => {
           <strong>Mapa: </strong>
           <a
             href={`https://www.google.com.br/maps/place/${location}`}
-            target="_blank"
             rel="noopener noreferrer"
           >
             <BiMap size={24} color="red" />
@@ -170,32 +187,38 @@ const EventDetailPage = () => {
             </DeleteButton>
           </Flex>
         )}
-        <Flex justify="flex-end">
-          <Button onClick={handleModalOpen} mt={4} variant="outline">
-            Visualizar Participantes
-          </Button>
-        </Flex>
+        {id_user === parseInt(iduser) && (
+          <Flex justify="flex-end">
+            <StyledButton onClick={handleModalOpen}>
+              Visualizar Participantes
+            </StyledButton>
+          </Flex>
+        )}
       </EventDetails>
-
-      <Button mt={4} onClick={() => navigate("/events")}>
-        Voltar
-      </Button>
+      <StyledButton onClick={() => navigate("/events")}>
+        <ArrowBackIcon />
+      </StyledButton>
       {id_user !== parseInt(iduser) && (
-        <Button mt={4} onClick={handleAddParticipant}>
+        <StyledButton onClick={handleAddParticipant}>
           Participar do Evento
-        </Button>
+        </StyledButton>
       )}
-
       <Modal isOpen={isModalOpen} onClose={handleModalClose}>
         <ModalOverlay />
         <ModalContent>
           <ModalHeader>Lista de Participantes</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            {participants.length > 0 ? (
+            {participants ? (
               <List spacing={3}>
-                {participants.map((participant, index) => (
-                  <ListItem key={index}>
+                {participants.map((participant) => (
+                  <ListItem
+                    key={participant.id} // Use a unique identifier if available
+                    py={2}
+                    px={4}
+                    borderRadius="md"
+                    bg="gray.100"
+                  >
                     {participant.name_participant}
                   </ListItem>
                 ))}
@@ -205,7 +228,12 @@ const EventDetailPage = () => {
             )}
           </ModalBody>
           <ModalFooter>
-            <Button colorScheme="blue" mr={3} onClick={handleModalClose}>
+            <Button
+              colorScheme="blue"
+              mr={3}
+              onClick={handleModalClose}
+              variant="outline"
+            >
               Fechar
             </Button>
           </ModalFooter>

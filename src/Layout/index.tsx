@@ -17,7 +17,7 @@ type LayoutProps = {
   children: React.ReactNode;
 };
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+const Layout: React.FC<LayoutProps> = React.memo(({ children }) => {
   const navigate = useNavigate();
   const toast = useToast();
   const { isOpen, onToggle } = useDisclosure();
@@ -66,17 +66,27 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           leftIcon={<FiCalendar />}
           variant="ghost"
           colorScheme="orange"
-          justifyContent="center"
+          justifyContent="flex-start"
           width="100%"
           onClick={() => navigate("/events")}
         >
           Eventos
         </Button>
         <Button
+          leftIcon={<FiCalendar />}
+          variant="ghost"
+          colorScheme="orange"
+          justifyContent="flex-start"
+          width="100%"
+          onClick={() => navigate("/events-confirmation")}
+        >
+          Meus Eventos
+        </Button>
+        <Button
           leftIcon={<BsQuestionSquare />}
           variant="ghost"
           colorScheme="orange"
-          justifyContent="center"
+          justifyContent="flex-start"
           width="100%"
           marginBottom={2}
           onClick={() => navigate("/about")}
@@ -98,6 +108,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <Content onClick={handleCloseSidebar}>{children}</Content>
     </Container>
   );
-};
+});
 
 export default React.memo(Layout);

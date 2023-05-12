@@ -1,24 +1,26 @@
-import { useState, useEffect } from "react";
+import React, { lazy, Suspense } from "react";
 import { Route, BrowserRouter, Routes } from "react-router-dom";
 import Layout from "Layout";
 import useLogin from "hooks/useLogin";
 
-import AboutPage from "pages/About";
-import CreateEventPage from "pages/CreateEvent";
-import CreateUserPage from "pages/CreateUser";
-import EventDetailPage from "pages/DetailEvent";
-import EventListPage from "pages/EventList";
-import ForgotPassword from "pages/ForgotPass";
-import LoginPage from "pages/Login";
-import ResetPassword from "pages/ResetPassword";
+const LazyAboutPage = lazy(() => import("pages/About"));
+const LazyCreateEventPage = lazy(() => import("pages/CreateEvent"));
+const LazyCreateUserPage = lazy(() => import("pages/CreateUser"));
+const LazyEventDetailPage = lazy(() => import("pages/DetailEvent"));
+const LazyEventListPage = lazy(() => import("pages/EventList"));
+const LazyForgotPassword = lazy(() => import("pages/ForgotPass"));
+const LazyLoginPage = lazy(() => import("pages/Login"));
+const LazyResetPassword = lazy(() => import("pages/ResetPassword"));
+const LazyEventConfirmation = lazy(() => import("pages/EventConfirmation"));
 
 const AppRoutes = () => {
   return (
     <Routes>
-      <Route path="/events/*" element={<EventListPage />} />
-      <Route path="/create-event" element={<CreateEventPage />} />
-      <Route path="/event-detail/:id" element={<EventDetailPage />} />
-      <Route path="/about" element={<AboutPage />} />
+      <Route path="/events/*" element={<LazyEventListPage />} />
+      <Route path="/create-event" element={<LazyCreateEventPage />} />
+      <Route path="/event-detail/:id" element={<LazyEventDetailPage />} />
+      <Route path="/events-confirmation" element={<LazyEventConfirmation />} />
+      <Route path="/about" element={<LazyAboutPage />} />
     </Routes>
   );
 };
@@ -26,11 +28,11 @@ const AppRoutes = () => {
 const AuthRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<LoginPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/register" element={<CreateUserPage />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
-      <Route path="/reset-password" element={<ResetPassword />} />
+      <Route path="/" element={<LazyLoginPage />} />
+      <Route path="/login" element={<LazyLoginPage />} />
+      <Route path="/register" element={<LazyCreateUserPage />} />
+      <Route path="/forgot-password" element={<LazyForgotPassword />} />
+      <Route path="/reset-password" element={<LazyResetPassword />} />
     </Routes>
   );
 };
@@ -40,13 +42,15 @@ export const Router = () => {
 
   return (
     <BrowserRouter>
-      {localStorage.getItem("token") ? (
-        <Layout>
-          <AppRoutes />
-        </Layout>
-      ) : (
-        <AuthRoutes />
-      )}
+      <Suspense fallback={<div>Loading...</div>}>
+        {localStorage.getItem("token") ? (
+          <Layout>
+            <AppRoutes />
+          </Layout>
+        ) : (
+          <AuthRoutes />
+        )}
+      </Suspense>
     </BrowserRouter>
   );
 };
