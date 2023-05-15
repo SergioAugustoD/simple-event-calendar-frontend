@@ -1,51 +1,61 @@
+import { Grid, Text } from "@chakra-ui/react";
+import { IEvent } from "interfaces/IEvent";
 import React from "react";
-import styled from "styled-components";
+import { EventCard, EventCardContent, EventInfo, EventTitle } from "./styles";
 
-interface Event {
-  id: number;
-  title: string;
-  date: string;
-  description: string;
-  location: string;
+interface EventListProps {
+  events: IEvent[];
+  searchTerm: string;
+  page: number;
+  navigate: (path: string, state?: any) => void;
 }
 
-interface EventItemProps {
-  event: Event;
-}
+const EventItem: React.FC<EventListProps> = ({
+  events,
+  searchTerm,
+  page,
+  navigate,
+}) => {
+  let filteredEvents: IEvent[] = events;
 
-const EventItem: React.FC<EventItemProps> = ({ event }) => {
+  if (searchTerm) {
+    const searchTermLowerCase: string = searchTerm.toLowerCase();
+    filteredEvents = events.filter((event) =>
+      Object.values(event).some(
+        (value) =>
+          typeof value === "string" &&
+          value.toLowerCase().includes(searchTermLowerCase)
+      )
+    );
+  }
+
+  const startIndex: number = page * 12;
+  const endIndex: number = startIndex + 12;
+  const currentEvents: IEvent[] = filteredEvents.slice(startIndex, endIndex);
+
   return (
-    <Container>
-      <Title>{event.title}</Title>
-      <Date>{event.date}</Date>
-      <Description>{event.description}</Description>
-      <Location>{event.location}</Location>
-    </Container>
+    <Grid templateColumns="repeat(4, 1fr)" gap={4}>
+      {currentEvents.map((event: IEvent) => (
+        <EventCard
+          key={event.id}
+          onClick={() =>
+            navigate(`/event-detail/${event.id}`, { state: { event } })
+          }
+        >
+          <EventCardContent>
+            <EventTitle as="h2">{event.title}</EventTitle>
+            <EventInfo>{event.date}</EventInfo>
+            <EventInfo>{event.category}</EventInfo>
+            <Text>{event.description}</Text>
+            <Text>{event.location}</Text>
+            <Text>
+              <strong>Author:</strong> {event.created_by}
+            </Text>
+          </EventCardContent>
+        </EventCard>
+      ))}
+    </Grid>
   );
 };
-
-const Container = styled.div`
-  background-color: #f2f2f2;
-  padding: 10px;
-  margin-bottom: 10px;
-  border-radius: 4px;
-`;
-
-const Title = styled.h3`
-  margin-bottom: 5px;
-`;
-
-const Date = styled.p`
-  margin-bottom: 5px;
-  color: #888888;
-`;
-
-const Description = styled.p`
-  margin-bottom: 5px;
-`;
-
-const Location = styled.p`
-  margin-bottom: 5px;
-`;
 
 export default EventItem;

@@ -113,7 +113,7 @@ const LoginPage: React.FC = () => {
             <Button
               variant="outline"
               colorScheme="teal"
-              onClick={() => navigate("/register", { replace: true })}
+              onClick={() => navigate("/signup", { replace: true })}
             >
               Create Account
             </Button>

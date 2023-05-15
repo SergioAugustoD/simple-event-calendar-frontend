@@ -1,3 +1,4 @@
+import { IComment } from "interfaces/IComment";
 import { IEvent } from "interfaces/IEvent";
 import { IParticipant } from "interfaces/IParticipants";
 import { instance } from "providers/api";
@@ -66,6 +67,17 @@ const confirmEvent = async (data: {
 
   return response.data;
 };
+
+const addComment = async (data: IComment) => {
+  const response = await instance.post("/events/create-comment", data);
+  return response.data;
+};
+
+const getCommentEvent = async (id: number) => {
+  const response = await instance.post("/events/comments", { idEvent: id });
+  return response.data;
+};
+
 export const EventService = {
   createEvent,
   listEvents,
@@ -75,4 +87,6 @@ export const EventService = {
   addUserToEvent,
   getEventsParticipant,
   confirmEvent,
+  addComment,
+  getCommentEvent,
 };

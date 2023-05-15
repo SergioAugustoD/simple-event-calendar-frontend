@@ -1,22 +1,23 @@
-import React from "react";
 import {
+  Box,
   Button,
   Flex,
   FormControl,
   FormLabel,
+  Heading,
   Input,
   Textarea,
   useToast,
-  Box,
-  Heading,
 } from "@chakra-ui/react";
-import { useForm } from "react-hook-form";
-import { EventService } from "services/EventService";
-import { useNavigate } from "react-router-dom";
-import { Container, ErrorBox, Form, StyledButton } from "./styles";
 import { IEvent } from "interfaces/IEvent";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import { EventService } from "services/EventService";
+import { Container, ErrorBox, Form, StyledButton } from "./styles";
 
 const CreateEventPage: React.FC = () => {
+  const toast = useToast();
   const {
     handleSubmit,
     register,
@@ -24,20 +25,15 @@ const CreateEventPage: React.FC = () => {
     formState: { errors, isSubmitting },
   } = useForm<IEvent>();
   const navigate = useNavigate();
-  const toast = useToast();
 
   const handleCreateEvent = async (data: IEvent) => {
     const res = await EventService.createEvent({
       ...data,
       id_user: parseInt(localStorage.getItem("dd") || ""),
     });
-
-    toast({
-      title: res.msg,
-      status: res.status === 200 ? "success" : "error",
-      duration: 3000,
-      isClosable: true,
-    });
+    res.status === 200
+      ? toast({ title: res.msg, status: "success" })
+      : toast({ title: res.msg, status: "error" });
     reset();
   };
 

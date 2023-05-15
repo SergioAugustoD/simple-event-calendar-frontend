@@ -1,29 +1,19 @@
-import React, { useEffect, useState, ChangeEvent, useCallback } from "react";
 import {
-  Box,
   Button,
+  CircularProgress,
   Flex,
-  Grid,
   Heading,
+  Input,
   Text,
   Tooltip,
-  Input,
-  Progress,
-  CircularProgress,
 } from "@chakra-ui/react";
+import EventItem from "components/Event/EventItem";
+import { IEvent } from "interfaces/IEvent";
+import React, { ChangeEvent, useCallback, useEffect, useState } from "react";
+import { BsArrowLeft, BsArrowRight, BsPlus } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { EventService } from "services/EventService";
-import styled from "styled-components";
-import { BsArrowLeft, BsArrowRight, BsPlus } from "react-icons/bs";
-import { IEvent } from "interfaces/IEvent";
-import {
-  Container,
-  CreateButton,
-  EventCard,
-  EventCardContent,
-  EventInfo,
-  EventTitle,
-} from "./styles";
+import { Container, CreateButton } from "./styles";
 
 interface EventListPageProps {}
 
@@ -68,49 +58,6 @@ const EventListPage: React.FC<EventListPageProps> = () => {
     fetchEvents();
   }, []);
 
-  const renderEvents = (): React.ReactNode => {
-    let filteredEvents: IEvent[] = events;
-
-    if (searchTerm) {
-      const searchTermLowerCase: string = searchTerm.toLowerCase();
-      filteredEvents = events.filter((event) =>
-        Object.values(event).some(
-          (value) =>
-            typeof value === "string" &&
-            value.toLowerCase().includes(searchTermLowerCase)
-        )
-      );
-    }
-
-    const startIndex: number = page * 12;
-    const endIndex: number = startIndex + 12;
-    const currentEvents: IEvent[] = filteredEvents.slice(startIndex, endIndex);
-
-    return (
-      <Grid templateColumns="repeat(4, 1fr)" gap={4}>
-        {currentEvents.map((event: IEvent) => (
-          <EventCard
-            key={event.id}
-            onClick={() =>
-              navigate(`/event-detail/${event.id}`, { state: { event } })
-            }
-          >
-            <EventCardContent>
-              <EventTitle as="h2">{event.title}</EventTitle>
-              <EventInfo>{event.date}</EventInfo>
-              <EventInfo>{event.category}</EventInfo>
-              <Text>{event.description}</Text>
-              <Text>{event.location}</Text>
-              <Text>
-                <strong>Author:</strong> {event.created_by}
-              </Text>
-            </EventCardContent>
-          </EventCard>
-        ))}
-      </Grid>
-    );
-  };
-
   return (
     <Container>
       <Flex justify="space-between" align="center" mb={4}>
@@ -137,7 +84,12 @@ const EventListPage: React.FC<EventListPageProps> = () => {
         <>
           {events.length > 0 ? (
             <>
-              {renderEvents()}
+              <EventItem
+                events={events}
+                navigate={navigate}
+                page={page}
+                searchTerm={searchTerm}
+              />
               <Flex justify="center" mt={4}>
                 {page > 0 && (
                   <Button

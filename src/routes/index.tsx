@@ -1,7 +1,7 @@
-import React, { lazy, Suspense } from "react";
-import { Route, BrowserRouter, Routes } from "react-router-dom";
-import Layout from "Layout";
 import useLogin from "hooks/useLogin";
+import Layout from "Layout";
+import { lazy, Suspense } from "react";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
 
 const LazyAboutPage = lazy(() => import("pages/About"));
 const LazyCreateEventPage = lazy(() => import("pages/CreateEvent"));
@@ -16,6 +16,7 @@ const LazyEventConfirmation = lazy(() => import("pages/EventConfirmation"));
 const AppRoutes = () => {
   return (
     <Routes>
+      <Route path="*" element={<LazyEventListPage />} />
       <Route path="/events/*" element={<LazyEventListPage />} />
       <Route path="/create-event" element={<LazyCreateEventPage />} />
       <Route path="/event-detail/:id" element={<LazyEventDetailPage />} />
@@ -28,9 +29,9 @@ const AppRoutes = () => {
 const AuthRoutes = () => {
   return (
     <Routes>
-      <Route path="/" element={<LazyLoginPage />} />
+      <Route path="*" element={<LazyLoginPage />} />
       <Route path="/login" element={<LazyLoginPage />} />
-      <Route path="/register" element={<LazyCreateUserPage />} />
+      <Route path="/signup" element={<LazyCreateUserPage />} />
       <Route path="/forgot-password" element={<LazyForgotPassword />} />
       <Route path="/reset-password" element={<LazyResetPassword />} />
     </Routes>

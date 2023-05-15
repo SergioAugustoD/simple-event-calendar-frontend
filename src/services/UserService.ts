@@ -2,7 +2,7 @@ import { IUser } from "interfaces/IUser";
 import { instance } from "providers/api";
 
 const createUser = async (data: IUser) => {
-  const response = await instance.post("/user/criar", data);
+  const response = await instance.post("/user/signup", data);
 
   return response.data;
 };

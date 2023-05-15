@@ -19,7 +19,6 @@ import { UserService } from "services/UserService";
 import { useNavigate } from "react-router-dom";
 import {
   Container,
-  ErrorBox,
   PasswordToggleBtn,
   SignUpForm,
   SignUpHeading,
@@ -40,6 +39,7 @@ const SignupPage: React.FC = () => {
     watch,
   } = useForm<FormData>();
   const [show, setShow] = React.useState(false);
+
   const handleClick = () => setShow(!show);
   const password = React.useRef("");
   password.current = watch("password", "");
@@ -47,17 +47,12 @@ const SignupPage: React.FC = () => {
   const navigate = useNavigate();
 
   const handleFormSubmit = async (data: FormData) => {
-    window.event.preventDefault();
-
     const response = await UserService.createUser(data);
+    const { status, msg } = response;
 
-    if (response.status === 200) {
-      toast({ title: response.msg, duration: 3000, status: "success" });
-      navigate("/");
-    }
-    if (response.err) {
-      toast({ title: response.msg, duration: 3000, status: "error" });
-    }
+    status === 200
+      ? toast({ title: msg, status: "success" }) && navigate("/")
+      : toast({ title: msg, status: "error" });
   };
 
   const onSubmit = handleSubmit(handleFormSubmit);

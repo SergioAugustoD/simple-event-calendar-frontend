@@ -1,70 +1,66 @@
 import styled from "styled-components";
 
 export const Container = styled.div`
-  display: grid;
-  grid-template-columns: 200px 1fr;
-  grid-template-rows: auto 1fr auto;
-
-  @media screen and (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
-`;
-
-export const Sidebar = styled.aside<{ open: boolean }>`
   display: flex;
   flex-direction: column;
-  background: rgb(40, 40, 42);
-  background: linear-gradient(
-    180deg,
-    rgba(40, 40, 42, 1) 0%,
-    rgba(1, 1, 5, 1) 100%,
-    rgba(0, 212, 255, 1) 100%
-  );
-  padding: 1rem;
-  width: 10vw;
   height: 100vh;
-  transition: transform 0.3s ease;
-  z-index: 1;
-
-  @media (max-width: 768px) {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    max-width: 38vw;
-    z-index: 1;
-    transform: ${({ open }) => (open ? "translateX(0)" : "translateX(-100%)")};
-  }
 `;
 
-export const BoxUser = styled.div`
-  margin-bottom: 1rem;
-  font-weight: bold;
-
-  &.box-user {
-    color: white;
-    display: flex;
-    height: 100px;
-    align-items: center;
-    justify-content: center;
-  }
-`;
-
-export const Content = styled.div`
-  padding: 1rem;
-
-  @media (max-width: 768px) {
-    margin-left: 0;
-  }
-`;
-
-export const Backdrop = styled.div`
+export const Header = styled.header<{ isTransparent: boolean }>`
+  background-color: ${({ isTransparent }) =>
+    isTransparent ? "#333" : "rgba(51, 51, 51, 0.8)"};
+  color: #fff;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   position: fixed;
-  top: 0;
-  left: 0;
   width: 100%;
-  height: 100vh;
-  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  transition: background-color 0.3s;
+`;
+
+export const MenuButton = styled.button`
+  background-color: transparent;
+  border: none;
+  color: #fff;
+  font-size: 16px;
+  cursor: pointer;
+  transition: color 0.3s;
+
+  &:hover {
+    color: #ff9900;
+  }
+`;
+
+export const MenuList = styled.ul<{ isOpen: boolean }>`
+  position: absolute;
+  top: 65px;
+  right: 20px;
+  list-style-type: none;
+  padding: 0;
+  margin: 0;
+  display: ${({ isOpen }) => (isOpen ? "flex" : "none")};
+  flex-direction: column;
+  background-color: #333;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   z-index: 1;
+`;
+
+export const MenuItem = styled.li`
+  padding: 10px;
+  transition: background-color 0.3s;
+
+  &:hover {
+    background-color: #444;
+  }
+`;
+
+export const Content = styled.main`
+  flex-grow: 1;
+  padding: 20px;
+  background-color: #f9f9f9;
+  position: relative;
+  margin-top: 80px; /* Ajuste o valor para corresponder à altura do cabeçalho */
 `;
