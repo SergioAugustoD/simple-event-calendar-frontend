@@ -12,4 +12,6 @@ export interface IEvent {
   category?: string;
   confirme_until?: string;
   confirmed?: string;
+  district?: string;
+  uf?: string;
 }

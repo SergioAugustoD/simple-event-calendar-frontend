@@ -1,58 +1,53 @@
-import { Button, Heading } from "@chakra-ui/react";
 import styled from "styled-components";
 
 export const Container = styled.div`
-  && {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 24px;
-    background-color: #f9f9f9;
-    border-radius: 10px;
-    box-shadow: 0px 0px 10px 0px rgba(0, 0, 0, 0.1);
-
-    @media (max-width: 768px) {
-      margin-left: 0px;
-      display: flex;
-      justify-content: flex-start;
-      padding: 16px;
-    }
-  }
+  max-width: 500px;
+  margin: 0 auto;
 `;
 
-export const CreateEventHeading = styled(Heading)`
-  && {
-    font-size: 32px;
-    margin-bottom: 24px;
-    text-align: center;
-    color: #333;
-  }
-`;
-
-export const ErrorBox = styled.div`
-  && {
-    color: red;
-    margin-top: 8px;
-    font-size: 16px;
-  }
+export const Heading = styled.h1`
+  text-align: center;
+  font-size: 2rem;
+  margin-bottom: 2rem;
 `;
 
 export const Form = styled.form`
-  && {
-    width: 100%;
-    max-width: 60vw;
-  }
+  margin-top: 2rem;
 `;
 
-export const StyledButton = styled(Button)`
-  && {
-    margin-right: 8px;
-    border-radius: 5px;
-    background-color: #333;
-    color: #fff;
+export const FormControl = styled.div`
+  margin-bottom: 1rem;
+`;
 
-    &:hover {
-      background-color: #555;
-    }
+export const FormLabel = styled.label`
+  display: block;
+  margin-bottom: 0.5rem;
+`;
+
+export const Input = styled.input`
+  width: 100%;
+  padding: 0.5rem;
+`;
+
+export const Textarea = styled.textarea`
+  width: 100%;
+  padding: 0.5rem;
+`;
+
+export const ErrorBox = styled.div`
+  color: red;
+  margin-top: 0.5rem;
+`;
+
+export const StyledButton = styled.button`
+  background-color: blue;
+  color: white;
+  padding: 0.5rem 1rem;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+
+  &:hover {
+    opacity: 0.8;
   }
 `;
