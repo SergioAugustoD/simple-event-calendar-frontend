@@ -125,7 +125,7 @@ const EventDetails: React.FC = () => {
         <strong>Mapa: </strong>
         <a
           href={`https://www.google.com.br/maps/place/${location}`}
-          rel="noopener noreferrer"
+          target="_blank"
         >
           <BiMap size={24} color="red" />
         </a>

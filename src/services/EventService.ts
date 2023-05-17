@@ -16,6 +16,8 @@ const createEvent = async (data: IEvent) => {
     created_by: localStorage.getItem("given_name"),
     category: "#" + data.category,
     confirme_until: data.confirme_until,
+    district: data.district,
+    uf: data.uf,
   });
   return response.data;
 };
