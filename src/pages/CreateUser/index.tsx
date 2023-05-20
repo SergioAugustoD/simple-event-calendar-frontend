@@ -1,34 +1,16 @@
-import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  FormControl,
-  FormErrorMessage,
-  FormHelperText,
-  FormLabel,
-  Heading,
-  Input,
-  InputGroup,
-  Stack,
-  InputRightElement,
-  useToast,
-} from "@chakra-ui/react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { BiHide, BiShow } from "react-icons/bi";
-import { UserService } from "services/UserService";
+import toast from "react-hot-toast";
+import { FiEye, FiEyeOff, FiMail, FiUser } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import {
-  Container,
-  PasswordToggleBtn,
-  SignUpForm,
-  SignUpHeading,
-} from "./styles";
+import { UserService } from "services/UserService";
+
 type FormData = {
   name: string;
   email: string;
   password: string;
   confirmPassword: string;
-  given_name: string;
+  givenName: string;
 };
 
 const SignupPage: React.FC = () => {
@@ -38,49 +20,59 @@ const SignupPage: React.FC = () => {
     formState: { errors, isSubmitting },
     watch,
   } = useForm<FormData>();
-  const [show, setShow] = React.useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
-  const handleClick = () => setShow(!show);
-  const password = React.useRef("");
-  password.current = watch("password", "");
-  const toast = useToast();
+  const handleClickPassword = () => setShowPassword(!showPassword);
+
+  const password = watch("password", "");
+
   const navigate = useNavigate();
 
   const handleFormSubmit = async (data: FormData) => {
     const response = await UserService.createUser(data);
     const { status, msg } = response;
 
-    status === 200
-      ? toast({ title: msg, status: "success" }) && navigate("/")
-      : toast({ title: msg, status: "error" });
+    if (status !== 200) {
+      toast.error(msg);
+    } else {
+      toast.success(msg);
+      navigate("/");
+    }
   };
 
   const onSubmit = handleSubmit(handleFormSubmit);
 
   return (
-    <Container>
-      <SignUpHeading mb="4" size="lg">
-        Sign Up
-      </SignUpHeading>
-      <Box borderWidth="1px" borderRadius="lg" p="6">
-        <SignUpForm onSubmit={onSubmit}>
-          <Stack spacing="4">
-            <FormControl isInvalid={!!errors.name}>
-              <FormLabel htmlFor="name">Nome</FormLabel>
-              <Input
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-r from-gray-800 to-indigo-900">
+      <div className="flex flex-col w-full sm:w-1/2 max-w-3xl p-6 bg-gradient-to-r from-gray-900 to-gray-800 rounded-lg shadow-lg">
+        <h2 className="text-2xl font-semibold text-center text-white mb-6">
+          Cadastre-se
+        </h2>
+        <form
+          onSubmit={onSubmit}
+          className="grid grid-cols-1 gap-4 w-full sm:w-80 self-center"
+        >
+          <div>
+            <div className="relative">
+              <FiUser size={16} className="absolute top-3 left-3 text-black" />
+              <input
                 {...register("name", {
-                  required: "Nome is required",
+                  required: "Nome é obrigatório",
                 })}
-                type="name"
+                type="text"
                 id="name"
+                placeholder="Nome"
+                className="w-full p-3 pl-10 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               />
-              <FormErrorMessage>{errors.name?.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.email}>
-              <FormLabel htmlFor="email">Email address</FormLabel>
-              <Input
+            </div>
+            <p className="text-red-500 text-xs mt-1">{errors.name?.message}</p>
+          </div>
+          <div>
+            <div className="relative">
+              <FiMail size={16} className="absolute top-3 left-3 text-black" />
+              <input
                 {...register("email", {
-                  required: "Email is required",
+                  required: "E-mail é obrigatório",
                   pattern: {
                     value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
                     message: "Invalid email address",
@@ -88,86 +80,114 @@ const SignupPage: React.FC = () => {
                 })}
                 type="email"
                 id="email"
+                placeholder="E-mail"
+                className="w-full p-3 pl-10 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               />
-              <FormErrorMessage>{errors.email?.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.given_name}>
-              <FormLabel htmlFor="given_name">Apelido</FormLabel>
-              <Input
-                {...register("given_name", {
+            </div>
+            <p className="text-red-500 text-xs mt-1">{errors.email?.message}</p>
+          </div>
+          <div>
+            <div className="relative">
+              <FiUser size={16} className="absolute top-3 left-3 text-black" />
+              <input
+                {...register("givenName", {
                   required: "Apelido é obrigatório",
                 })}
-                type="given_name"
-                id="given_name"
+                type="text"
+                id="givenName"
+                placeholder="Apelido"
+                className="w-full p-3 pl-10 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
               />
-              <FormErrorMessage>{errors.given_name?.message}</FormErrorMessage>
-            </FormControl>
-            <FormControl isInvalid={!!errors.password}>
-              <FormLabel htmlFor="password">Password</FormLabel>
-              <InputGroup>
-                <Input
-                  {...register("password", {
-                    required: "Password is required",
-                    minLength: {
-                      value: 6,
-                      message: "Password must have at least 6 characters",
-                    },
-                  })}
-                  type={show ? "text" : "password"}
-                  id="password"
+            </div>
+            <p className="text-red-500 text-xs mt-1">
+              {errors.givenName?.message}
+            </p>
+          </div>
+          <div>
+            <div className="relative">
+              {!showPassword ? (
+                <FiEye
+                  size={16}
+                  className="absolute top-3 left-3 text-black cursor-pointer"
+                  onClick={handleClickPassword}
                 />
-                <InputRightElement width="4.5rem">
-                  <PasswordToggleBtn
-                    h="1.75rem"
-                    onClick={handleClick}
-                    aria-label={show ? "Hide password" : "Show password"}
-                  >
-                    {show ? <BiHide /> : <BiShow />}
-                  </PasswordToggleBtn>
-                </InputRightElement>
-              </InputGroup>
-
-              <FormErrorMessage>{errors.password?.message}</FormErrorMessage>
-              <FormHelperText>
-                Password strength:{" "}
-                {password.current.length > 0
-                  ? getPasswordStrength(password.current)
-                  : "N/A"}
-              </FormHelperText>
-            </FormControl>
-            <FormControl isInvalid={!!errors.confirmPassword}>
-              <FormLabel htmlFor="confirmPassword">Confirm Password</FormLabel>
-              <InputGroup>
-                <Input
-                  {...register("confirmPassword", {
-                    required: "Confirm Password is required",
-                    validate: (value) =>
-                      value === password.current || "Passwords do not match",
-                  })}
-                  type={show ? "text" : "password"}
-                  id="confirmPassword"
+              ) : (
+                <FiEyeOff
+                  size={16}
+                  className="absolute top-3 left-3 text-black cursor-pointer"
+                  onClick={handleClickPassword}
                 />
-                <InputRightElement width="4.5rem">
-                  <PasswordToggleBtn
-                    h="1.75rem"
-                    onClick={handleClick}
-                    aria-label={show ? "Hide password" : "Show password"}
-                  >
-                    {show ? <BiHide /> : <BiShow />}
-                  </PasswordToggleBtn>
-                </InputRightElement>
-              </InputGroup>
-              <FormErrorMessage>
-                {errors.confirmPassword?.message}
-              </FormErrorMessage>
-            </FormControl>
-            <Button type="submit" colorScheme="teal" isLoading={isSubmitting}>
-              Sign Up
-            </Button>
-          </Stack>
-        </SignUpForm>
-      </Box>
-    </Container>
+              )}
+              <input
+                {...register("password", {
+                  required: "Senha é obrigatória",
+                  minLength: {
+                    value: 6,
+                    message: "Senha precisa ter pelo menos 6 caracteres",
+                  },
+                })}
+                type={showPassword ? "text" : "password"}
+                id="password"
+                placeholder="Senha"
+                className="w-full p-3 pl-10 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+              />
+            </div>
+            <p className="text-red-500 text-xs mt-1">
+              {errors.password?.message}
+            </p>
+            <p className="text-xs mt-1 text-white">
+              Força da senha:{" "}
+              {password.length > 0 ? getPasswordStrength(password) : "N/A"}
+            </p>
+          </div>
+          <div>
+            <div className="relative">
+              {!showPassword ? (
+                <FiEye
+                  size={16}
+                  className="absolute top-3 left-3 text-black cursor-pointer"
+                  onClick={handleClickPassword}
+                />
+              ) : (
+                <FiEyeOff
+                  size={16}
+                  className="absolute top-3 left-3 text-black cursor-pointer"
+                  onClick={handleClickPassword}
+                />
+              )}
+              <input
+                {...register("confirmPassword", {
+                  required: "Confirme a senha é obrigtória",
+                  validate: (value) =>
+                    value === password || "Senhas não são iguais",
+                })}
+                type={showPassword ? "text" : "password"}
+                id="confirmPassword"
+                placeholder="Confirme a senha"
+                className="w-full p-3 pl-10 border border-gray-700 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-black"
+              />
+            </div>
+            <p className="text-red-500 text-xs mt-1">
+              {errors.confirmPassword?.message}
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row justify-between">
+            <button
+              type="submit"
+              className="text-black bg-blue-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full mr-2 px-5 py-2.5 text-center mb-2 sm:mb-0"
+            >
+              Criar
+            </button>
+            <button
+              className="text-black bg-gray-500 hover:bg-blue-700 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm w-full sm:w-auto px-5 py-2.5 text-center"
+              onClick={() => navigate("/login")}
+            >
+              Voltar
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   );
 };
 

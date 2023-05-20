@@ -1,50 +1,24 @@
-import { Button, Flex, useToast } from "@chakra-ui/react";
-import { Step, Steps, useSteps } from "chakra-ui-steps";
+import Step1 from "components/Event/Create/Step1";
+import Step2 from "components/Event/Create/Step2";
 import { IEvent } from "interfaces/IEvent";
 import { instance } from "providers/api";
-import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
+import { useState } from "react";
+import { FormProvider, useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import { EventService } from "services/EventService";
-import {
-  Container,
-  ErrorBox,
-  Form,
-  FormControl,
-  FormLabel,
-  Heading,
-  Input,
-  StyledButton,
-  Textarea,
-} from "./styles";
 
-const CreateEventPage = () => {
-  const navigate = useNavigate();
-  const toast = useToast();
-  const { nextStep, prevStep, activeStep } = useSteps({
-    initialStep: 0,
-  });
+const CreateEventForm = () => {
+  const methods = useForm();
+  const { handleSubmit, formState, getValues, setValue, reset } = methods;
+  const { isSubmitting } = formState;
+  const [currentStep, setCurrentStep] = useState(1);
 
-  const {
-    handleSubmit,
-    register,
-    reset,
-    getValues,
-    setValue,
-    formState: { errors, isSubmitting },
-  } = useForm<IEvent>();
+  const nextStep = () => {
+    setCurrentStep(currentStep + 1);
+  };
 
-  const handleCreateEvent = async (data: IEvent) => {
-    const res = await EventService.createEvent({
-      ...data,
-      id_user: parseInt(localStorage.getItem("dd") || ""),
-    });
-
-    if (res.status === 200) {
-      toast({ title: res.msg, status: "success" });
-    } else {
-      toast({ title: res.msg, status: "error" });
-    }
-    reset();
+  const prevStep = () => {
+    setCurrentStep(currentStep - 1);
   };
 
   const handleCep = async () => {
@@ -63,152 +37,63 @@ const CreateEventPage = () => {
     }
   };
 
-  console.log(activeStep);
-  const steps = [
-    {
-      label: "Informações do Evento",
-      content: (
-        <>
-          <FormControl>
-            <FormLabel>Título</FormLabel>
-            <Input
-              {...register("title", { required: true })}
-              placeholder="Título do evento"
-            />
-          </FormControl>
+  const handleCreateEvent = async (data: IEvent) => {
+    const res = await EventService.createEvent({
+      ...data,
+      id_user: parseInt(localStorage.getItem("dd") || ""),
+    });
 
-          <FormControl>
-            <FormLabel>Categoria</FormLabel>
-            <Input
-              {...register("category", { required: true })}
-              placeholder="Categoria do evento"
-            />
-          </FormControl>
-
-          <FormControl>
-            <FormLabel>Data</FormLabel>
-            <Input
-              {...register("date", { required: true })}
-              type="datetime-local"
-              placeholder="Data do evento"
-            />
-          </FormControl>
-
-          <FormControl>
-            <FormLabel>Data/Confirmação</FormLabel>
-            <Input
-              {...register("confirme_until", { required: true })}
-              type="datetime-local"
-              placeholder="Confirmação do evento"
-            />
-          </FormControl>
-
-          <FormControl>
-            <FormLabel>Descrição</FormLabel>
-            <Textarea
-              {...register("description", { required: true })}
-              placeholder="Descrição do evento"
-            />
-          </FormControl>
-          {(errors.category ||
-            errors.confirme_until ||
-            errors.date ||
-            errors.description ||
-            errors.title) && <ErrorBox>Preencha todos os campos</ErrorBox>}
-        </>
-      ),
-    },
-    {
-      label: "Informações do Endereço",
-      content: (
-        <>
-          <FormControl>
-            <FormLabel>CEP</FormLabel>
-            <Input
-              {...register("locationCEP")}
-              placeholder="CEP"
-              onBlur={handleCep}
-            />
-            {errors.locationCEP && <ErrorBox>Campo obrigatório</ErrorBox>}
-          </FormControl>
-
-          <FormControl>
-            <FormLabel>Rua</FormLabel>
-            <Input
-              {...register("location", { required: true })}
-              placeholder="Rua"
-            />
-            {errors.location && <ErrorBox>Campo obrigatório</ErrorBox>}
-          </FormControl>
-
-          <FormControl>
-            <FormLabel>Número</FormLabel>
-            <Input
-              {...register("locationNumber", { required: true })}
-              placeholder="Número"
-            />
-            {errors.locationNumber && <ErrorBox>Campo obrigatório</ErrorBox>}
-          </FormControl>
-
-          <FormControl>
-            <FormLabel>Bairro</FormLabel>
-            <Input
-              {...register("district", { required: true })}
-              placeholder="Bairro"
-            />
-            {errors.district && <ErrorBox>Campo obrigatório</ErrorBox>}
-          </FormControl>
-
-          <FormControl>
-            <FormLabel>Cidade</FormLabel>
-            <Input
-              {...register("locationCity", { required: true })}
-              placeholder="Cidade"
-            />
-            {errors.locationCity && <ErrorBox>Campo obrigatório</ErrorBox>}
-          </FormControl>
-
-          <FormControl>
-            <FormLabel>UF</FormLabel>
-            <Input {...register("uf", { required: true })} placeholder="UF" />
-            {errors.uf && <ErrorBox>Campo obrigatório</ErrorBox>}
-          </FormControl>
-        </>
-      ),
-    },
-  ];
+    if (res.status === 200) {
+      toast.success(res.msg);
+    } else {
+      toast.error(res.msg);
+    }
+    reset();
+    setCurrentStep(1);
+  };
   return (
-    <Container>
-      <Heading>Criar Evento</Heading>
-      <Form>
-        <Steps activeStep={activeStep} responsive>
-          {steps.map(({ label, content }) => (
-            <Step label={label} key={label}>
-              {content}
-            </Step>
-          ))}
-        </Steps>
-        <Flex justify="space-between">
-          <Button
-            isDisabled={activeStep === 0}
-            mr={4}
-            onClick={prevStep}
-            variant="ghost"
-          >
-            Prev
-          </Button>
-          <Button
-            onClick={
-              activeStep == 2 ? handleSubmit(handleCreateEvent) : nextStep
-            }
-          >
-            {activeStep === 2 ? "Finish" : "Next"}
-          </Button>
-          <StyledButton type="submit">Criar Evento</StyledButton>
-        </Flex>
-      </Form>
-    </Container>
+    <FormProvider {...methods}>
+      <form className="max-w-md mx-auto">
+        {currentStep === 1 && <Step1 formState={formState} />}
+        {currentStep === 2 && (
+          <Step2 formState={formState} onBlur={handleCep} />
+        )}
+
+        <div className="mt-4 flex justify-between">
+          {currentStep > 1 && (
+            <button
+              type="button"
+              onClick={prevStep}
+              className="px-4 py-2 bg-blue-500 text-white rounded"
+            >
+              Voltar
+            </button>
+          )}
+
+          {currentStep < 2 && (
+            <button
+              type="submit"
+              disabled={!formState.isValid || isSubmitting}
+              className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
+              onClick={nextStep}
+            >
+              Próximo
+            </button>
+          )}
+
+          {currentStep === 2 && (
+            <button
+              disabled={!formState.isValid || isSubmitting}
+              className="px-4 py-2 bg-blue-500 text-white rounded disabled:bg-gray-400"
+              onClick={handleSubmit(handleCreateEvent)}
+            >
+              Criar Evento
+            </button>
+          )}
+        </div>
+      </form>
+    </FormProvider>
   );
 };
 
-export default CreateEventPage;
+export default CreateEventForm;
